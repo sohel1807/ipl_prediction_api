@@ -61,3 +61,7 @@ def predict(data: PredictInput):
         data.batting_team: batting_team_prob,
         data.bowling_team : bowling_team_prob
     }
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app)
