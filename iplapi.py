@@ -6,9 +6,9 @@ import pickle
 
 app = FastAPI()
 
-@app.get('/')
-def hello_world():
-    return "Hello,World"
+# @app.get('/')
+# def hello_world():
+#     return "Hello,World"
 
 @app.post("/predict")
 def predict(batting_team: str = Body(...), 
