@@ -1,67 +1,57 @@
-# Fast api server for ipl win prediction
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 import pandas as pd
 import pickle
-from pydantic import BaseModel
 
-
-# pipe = pickle.load(open("pipe.pkl", "rb"))
 
 
 app = FastAPI()
-
-# class PredictInput(BaseModel):
-#     batting_team: str
-#     bowling_team: str
-#     city: str
-#     total_runs: int
-#     current_score: int
-#     wickets: int
-#     overs_completed: float
 
 @app.get('/')
 def hello_world():
     return "Hello,World"
 
-
-# @app.post("/predict")
-# def predict(data: PredictInput):
+@app.post("/predict")
+def predict(batting_team: str = Body(...), 
+            bowling_team: str = Body(...), 
+            city: str = Body(...), 
+            total_runs: int = Body(...), 
+            current_score: int = Body(...), 
+            wickets: int = Body(...), 
+            overs_completed: float = Body(...)):
     
-#     runs_left = data.total_runs - data.current_score
-#     balls_left = 120 - (data.overs_completed * 6)
-#     wickets_left = 10 - data.wickets
-#     crr = data.current_score / (data.overs_completed + 1)
-#     rrr = (runs_left * 6) / balls_left
+    pipe = pickle.load(open("pipe.pkl", "rb"))
 
-#     final_data = pd.DataFrame({
-#         "BattingTeam": [data.batting_team],
-#         "BowlingTeam": [data.bowling_team],
-#         "City": [data.city],
-#         "runs_left": [runs_left],
-#         "total_run_y": [data.total_runs],
-#         "balls_left": [balls_left],
-#         "wickets_left": [wickets_left],
-#         "CRR": [crr],
-#         "RRR": [rrr]
-#     })
+    runs_left = total_runs - current_score
+    balls_left = 120 - (overs_completed * 6)
+    wickets_left = 10 - wickets
+    crr = current_score / (overs_completed + 1)
+    rrr = (runs_left * 6) / balls_left
 
-#     result = pipe.predict_proba(final_data)
+    final_data = pd.DataFrame({
+        "BattingTeam": [batting_team],
+        "BowlingTeam": [bowling_team],
+        "City": [city],
+        "runs_left": [runs_left],
+        "total_run_y": [total_runs],
+        "balls_left": [balls_left],
+        "wickets_left": [wickets_left],
+        "CRR": [crr],
+        "RRR": [rrr]
+    })
 
-#     if data.current_score >= data.total_runs:
-#         batting_team_prob = 100.0
-#         bowling_team_prob = 0.0
-#     elif wickets_left == 0:
-#         batting_team_prob = 0.0
-#         bowling_team_prob = 100.0
-#     else:
-#         batting_team_prob = round(result[0][1] * 100, 2)
-#         bowling_team_prob = round(result[0][0] * 100, 2)
+    result = pipe.predict_proba(final_data)
 
-#     return {
-#         data.batting_team: batting_team_prob,
-#         data.bowling_team : bowling_team_prob
-#     }
+    if current_score >= total_runs:
+        batting_team_prob = 100.0
+        bowling_team_prob = 0.0
+    elif wickets_left == 0:
+        batting_team_prob = 0.0
+        bowling_team_prob = 100.0
+    else:
+        batting_team_prob = round(result[0][1] * 100, 2)
+        bowling_team_prob = round(result[0][0] * 100, 2)
 
-if __name__ == '__main__':
-    import uvicorn
-    uvicorn.run(app)
+    return {
+        batting_team: batting_team_prob,
+        bowling_team: bowling_team_prob
+    }
