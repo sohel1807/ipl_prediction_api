@@ -5,7 +5,7 @@ import pickle
 
 
 app = FastAPI()
-
+pipe = pickle.load(open("pipe.pkl", "rb"))
 # @app.get('/')
 # def hello_world():
 #     return "Hello,World"
@@ -19,7 +19,7 @@ def predict(batting_team: str = Body(...),
             wickets: int = Body(...), 
             overs_completed: float = Body(...)):
     
-    pipe = pickle.load(open("pipe.pkl", "rb"))
+    
 
     runs_left = total_runs - current_score
     balls_left = 120 - (overs_completed * 6)
