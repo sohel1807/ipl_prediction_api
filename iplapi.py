@@ -1,15 +1,21 @@
-from fastapi import FastAPI, Body
+from modal import Stub, build, enter, method, web_endpoint, Image, Mount
 from typing import Dict
-import pickle
 import pandas as pd
+import pickle
 
-app = FastAPI()
+image = Image.debian_slim().pip_install(
+    "scikit-learn",
+    "pandas"
+)
 
-with open('pipe.pkl', 'rb') as f:
-    model = pickle.load(f)
+stub = Stub(name="ipl_prediction", image=image)
 
-@app.post("/predict")
-def predict_percentage(Info: Dict = Body(...)):
+@stub.function(mounts=[Mount.from_local_file("pipe.pkl", remote_path='/root/pipe.pkl')])
+@web_endpoint(label="predict", method="POST")
+def predict_percentage(Info: Dict):
+    with open('/root/pipe.pkl', 'rb') as f:
+        data = pickle.load(f)
+        
     batting_team = Info["batting_team"]
     bowling_team = Info["bowling_team"]
     city = Info["city"]
@@ -17,7 +23,7 @@ def predict_percentage(Info: Dict = Body(...)):
     current_score = Info["current_score"]
     wickets = Info["wickets"]
     overs_completed = Info["overs_completed"]
-
+    
     runs_left = total_runs - current_score
     balls_left = 120 - (overs_completed * 6)
     wickets_left = 10 - wickets
@@ -36,7 +42,7 @@ def predict_percentage(Info: Dict = Body(...)):
         "RRR": [rrr]
     })
 
-    result = model.predict_proba(final_data)
+    result = data.predict_proba(final_data)
 
     if current_score >= total_runs:
         batting_team_prob = 100.0
