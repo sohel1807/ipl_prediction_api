@@ -1,6 +1,3 @@
-Here is a sample GitHub README file for your IPL win predictor API:
-
-```markdown
 # IPL Win Predictor API
 
 This API predicts the winning probabilities of an IPL match based on the current game situation.
@@ -25,7 +22,6 @@ This API predicts the winning probabilities of an IPL match based on the current
     "wickets": 5,
     "overs_completed": 12.0
 }
-```
 
 ### Parameters
 
@@ -41,7 +37,6 @@ This API predicts the winning probabilities of an IPL match based on the current
 
 ### Python Example
 
-```python
 import requests
 
 url = "https://sohel1807--predict.modal.run"
@@ -57,7 +52,7 @@ data = {
 
 response = requests.post(url, json=data)
 print(response.json())
-```
+
 
 ## Deployment
 
